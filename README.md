@@ -107,6 +107,25 @@ React + TypeScript（Vite）
 
 ---
 
+## 🚢 發佈資料與部署
+
+`char.sqlite`（約 43MB）與字型不進版控。發佈與部署流程：
+
+```bash
+# 1) 建立 GitHub 倉庫並加遠端（你決定可見性）
+git remote add origin <你的 repo URL> && git push -u origin main
+
+# 2) 把資料集發佈為 Release 草稿 data-v1（需先安裝並登入 gh CLI）
+node scripts/publish-data-release.mjs            # 預設建立「草稿」，到 GitHub 再按 Publish
+#   GitHub Pages 部署（.github/workflows/deploy.yml）會自此 Release 下載 char.sqlite
+
+# 3) 啟用 GitHub Pages（Settings → Pages → Source: GitHub Actions）
+```
+
+> ⚠ **資料發佈是刻意保留給你親自執行的動作**：散布前請先釐清注音／羅馬化／頻率資料來源
+> （見 [`DATA.md`](DATA.md)），並確認倉庫可見性。`scripts/publish-data-release.mjs`
+> 預設只建立**草稿**，不會自動公開。
+
 ## ✅ 進度（Phase 0–4 全數完成）
 
 - **Phase 0** 資料解放：88,966 字遷入乾淨 SQLite，正規化讀音/部件反查、FTS5、CSV/JSON 開放資料、`DATA.md`。
