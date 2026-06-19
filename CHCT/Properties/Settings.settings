@@ -1,0 +1,89 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="CHCT.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="CharConnectionString" Type="(Connection string)" Scope="Application">
+      <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;SerializableConnectionString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;ConnectionString&gt;Provider=Microsoft.Jet.OLEDB.4.0;Data Source=|DataDirectory|\Char.mdb&lt;/ConnectionString&gt;
+  &lt;ProviderName&gt;System.Data.OleDb&lt;/ProviderName&gt;
+&lt;/SerializableConnectionString&gt;</DesignTimeValue>
+      <Value Profile="(Default)">Provider=Microsoft.Jet.OLEDB.4.0;Data Source=|DataDirectory|\Char.mdb</Value>
+    </Setting>
+    <Setting Name="b_HighLightFontChar" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="b_OutputAllPages" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="b_OutputSeparate" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="b_OutputFontSupported" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="s_OutputSeparate" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="s_FontDefaultA" Type="System.String" Scope="User">
+      <Value Profile="(Default)">新細明體</Value>
+    </Setting>
+    <Setting Name="s_FontDefaultB" Type="System.String" Scope="User">
+      <Value Profile="(Default)">HanaMinB</Value>
+    </Setting>
+    <Setting Name="s_ComboRegularFont" Type="System.String" Scope="User">
+      <Value Profile="(Default)">新細明體</Value>
+    </Setting>
+    <Setting Name="s_ComboCharBlockFont" Type="System.String" Scope="User">
+      <Value Profile="(Default)">新細明體</Value>
+    </Setting>
+    <Setting Name="s_ComboFilterFont" Type="System.String" Scope="User">
+      <Value Profile="(Default)">新細明體</Value>
+    </Setting>
+    <Setting Name="s_ComboFilterBtnFont" Type="System.String" Scope="User">
+      <Value Profile="(Default)">新細明體</Value>
+    </Setting>
+    <Setting Name="s_ComboPartFont" Type="System.String" Scope="User">
+      <Value Profile="(Default)">新細明體</Value>
+    </Setting>
+    <Setting Name="s_Phoenics1" Type="System.String" Scope="User">
+      <Value Profile="(Default)">無</Value>
+    </Setting>
+    <Setting Name="s_Phoenics2" Type="System.String" Scope="User">
+      <Value Profile="(Default)">無</Value>
+    </Setting>
+    <Setting Name="s_Phoenics3" Type="System.String" Scope="User">
+      <Value Profile="(Default)">無</Value>
+    </Setting>
+    <Setting Name="s_PhoenicsBG1" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Lavender</Value>
+    </Setting>
+    <Setting Name="s_PhoenicsBG2" Type="System.String" Scope="User">
+      <Value Profile="(Default)">LightCyan</Value>
+    </Setting>
+    <Setting Name="s_PhoenicsBG3" Type="System.String" Scope="User">
+      <Value Profile="(Default)">PapayaWhip</Value>
+    </Setting>
+    <Setting Name="i_SearchHistory" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">12</Value>
+    </Setting>
+    <Setting Name="i_FontSizeFilterTitle" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">20</Value>
+    </Setting>
+    <Setting Name="i_FontSizeFilterCharBtn" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">24</Value>
+    </Setting>
+    <Setting Name="i_FontSizeFilterClrBtn" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">16</Value>
+    </Setting>
+    <Setting Name="i_FontSizeCharBlock" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">40</Value>
+    </Setting>
+    <Setting Name="i_FontSizeOutput" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">32</Value>
+    </Setting>
+    <Setting Name="b_DebugMode" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

@@ -1,0 +1,154 @@
+:root {
+  --bg: #f6f5f1;
+  --panel: #ffffff;
+  --ink: #1c1b19;
+  --muted: #6b6760;
+  --line: #e3e0d8;
+  --accent: #cb250d; /* 沿用原程式的硃紅 */
+  --accent-soft: #fbe9e6;
+  --gold: #d4af37;
+  --radius: 10px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.04);
+  font-family: "Segoe UI", system-ui, "Microsoft JhengHei", "PingFang TC", sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--ink); }
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { font: inherit; cursor: pointer; }
+
+.app { max-width: 1100px; margin: 0 auto; padding: 0 16px 64px; }
+
+/* Header / nav */
+.header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; padding: 20px 0 12px; }
+.brand { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+.brand .dot { color: var(--accent); }
+.tagline { color: var(--muted); font-size: 13px; }
+.langtoggle { margin-left: auto; display: flex; gap: 4px; }
+.langtoggle button { border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 4px 10px; color: var(--muted); }
+.langtoggle button.active { color: var(--accent); border-color: var(--accent); }
+
+.nav { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
+.nav button {
+  border: none; background: none; padding: 10px 14px; color: var(--muted);
+  border-bottom: 2px solid transparent; font-weight: 600;
+}
+.nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Generic panel */
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.card { padding: 20px; }
+
+/* Search bar */
+.searchbar { display: flex; gap: 8px; margin-bottom: 20px; }
+.searchbar input {
+  flex: 1; padding: 12px 14px; font-size: 16px; border: 1px solid var(--line);
+  border-radius: var(--radius); background: var(--panel);
+}
+.searchbar input:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+.btn {
+  padding: 12px 18px; border: 1px solid var(--accent); background: var(--accent); color: #fff;
+  border-radius: var(--radius); font-weight: 600;
+}
+.btn.secondary { background: var(--panel); color: var(--accent); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Char detail */
+.detail { display: grid; grid-template-columns: 200px 1fr; gap: 20px; }
+.glyphbox { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.glyph {
+  font-size: 120px; line-height: 1; padding: 16px 8px; min-width: 160px; text-align: center;
+  border: 1px solid var(--line); border-radius: var(--radius); background: #fff;
+}
+.glyph-cp { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+.facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.fact { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: #fcfbf9; }
+.fact .k { color: var(--muted); font-size: 12px; }
+.fact .v { font-size: 16px; font-weight: 600; margin-top: 2px; }
+.badge { display: inline-block; padding: 1px 8px; border-radius: 10px; color: #fff; font-size: 13px; }
+
+.section { margin-top: 20px; }
+.section h3 { margin: 0 0 8px; font-size: 14px; color: var(--muted); font-weight: 700; letter-spacing: 0.5px; }
+
+/* Romanization table */
+.rom-table { width: 100%; border-collapse: collapse; }
+.rom-table td { padding: 5px 8px; border-bottom: 1px solid var(--line); }
+.rom-table td.sys { color: var(--muted); width: 40%; }
+.rom-table td.val { font-weight: 600; }
+.reading-chip {
+  display: inline-block; margin: 0 6px 6px 0; padding: 4px 10px; border-radius: 8px;
+  background: var(--accent-soft); color: var(--accent); font-size: 18px; font-weight: 600;
+}
+
+/* Decomposition tree */
+.tree, .tree ul { list-style: none; margin: 0; padding-left: 18px; }
+.tree > li { padding-left: 0; }
+.tree li { position: relative; padding: 2px 0; }
+.node { display: inline-flex; align-items: center; gap: 8px; }
+.node .t { font-size: 22px; cursor: pointer; border-bottom: 1px dashed transparent; }
+.node .t:hover { border-bottom-color: var(--accent); }
+.node .op { color: var(--muted); font-size: 13px; }
+.node.entity .t { color: var(--muted); font-size: 14px; font-family: monospace; cursor: default; }
+
+/* Kangxi text */
+.kangxi {
+  font-size: 17px; line-height: 1.9; white-space: pre-wrap;
+  font-family: "Source Han Serif TC", "Noto Serif TC", "PMingLiU", serif;
+  max-height: 360px; overflow: auto; padding-right: 6px;
+}
+
+/* Filter view */
+.filter-grid { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: start; }
+.filter-row { margin-bottom: 12px; }
+.filter-row label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.filter-row select, .filter-row input {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff;
+}
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+.toolbar .count { color: var(--muted); }
+
+/* Character grid */
+.chargrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 6px; }
+.cell {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 26px;
+  border: 1px solid var(--line); border-radius: 6px; background: #fff; cursor: pointer; user-select: none;
+}
+.cell:hover { border-color: var(--accent); }
+.cell.supported { background: #fffbe8; border-color: var(--gold); }
+
+.output { width: 100%; min-height: 120px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 22px; line-height: 1.6; }
+
+/* FTS hits */
+.hit { padding: 10px 12px; border-bottom: 1px solid var(--line); display: flex; gap: 12px; }
+.hit .h-char { font-size: 28px; cursor: pointer; }
+.hit .h-snip { color: var(--ink); font-size: 14px; line-height: 1.7; }
+.hit mark { background: var(--accent-soft); color: var(--accent); }
+
+/* Convert */
+.convert-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.convert-grid textarea { width: 100%; min-height: 220px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 16px; }
+
+/* States */
+.center { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 60px 20px; color: var(--muted); }
+.spinner { width: 28px; height: 28px; border: 3px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.muted { color: var(--muted); }
+.err { color: var(--accent); }
+
+/* HanaMin（花園明朝）開啟時，字形/字元格/康熙釋義改用全覆蓋字型 */
+.use-hanamin .glyph,
+.use-hanamin .cell { font-family: "HanaMin", "Source Han Serif TC", serif !important; }
+.use-hanamin .kangxi { font-family: "HanaMin", "Source Han Serif TC", "Noto Serif TC", serif; }
+.hanamin-toggle { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
+
+/* Responsive */
+@media (max-width: 720px) {
+  .detail { grid-template-columns: 1fr; }
+  .filter-grid { grid-template-columns: 1fr; }
+  .convert-grid { grid-template-columns: 1fr; }
+  .glyph { font-size: 96px; }
+}

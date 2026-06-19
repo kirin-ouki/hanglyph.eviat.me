@@ -1,0 +1,60 @@
+name: Deploy to GitHub Pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      # char.sqlite 不在版控（42MB）。從名為 data-v1 的 Release 取得；
+      # 取不到時仍會建置（站台執行期會顯示「資料缺失」提示）。
+      - name: Fetch dataset from release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p web/public/data
+          gh release download data-v1 --repo "$GITHUB_REPOSITORY" \
+            --pattern char.sqlite --dir web/public/data || \
+            echo "找不到 data-v1 release 的 char.sqlite，將建置不含資料的站台。"
+
+      - name: Build
+        working-directory: web
+        env:
+          VITE_BASE: /${{ github.event.repository.name }}/
+          CHCT_SKIP_SETUP_DATA: "1" # 已自 release 放好資料，prebuild 不需從本機複製
+        run: |
+          npm ci
+          npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

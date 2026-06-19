@@ -1,0 +1,32 @@
+# ── 機密：絕不進版控（原專案的簽章金鑰，建議移除並輪替）──
+*.pfx
+
+# ── 原始資料庫（約 50MB，且來源/授權待確認，見 DATA.md）──
+CHCT/Char.mdb
+
+# ── Phase 0 產物（可由 `python data/migrate.py` 重現；大型檔以 GitHub Releases 發佈）──
+data/dist/
+
+# ── 舊 Visual Studio / WPF 建置產物與暫存 ──
+.vs/
+CHCT/bin/
+CHCT/obj/
+*.user
+*.vspx
+*.psess
+*.suo
+
+# ── Web（Node / Vite）──
+web/node_modules/
+web/dist/
+web/public/data/*.sqlite
+# HanaMin 字型（GlyphWiki 授權，數十 MB；由 `npm run setup-fonts` 取得）
+web/public/fonts/
+
+# ── Python ──
+__pycache__/
+*.pyc
+
+# ── OS ──
+.DS_Store
+Thumbs.db
