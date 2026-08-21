@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CharacterRow } from "../db/types";
 import { makeCoverageChecker } from "../lib/fontCoverage";
+import { cssFontFamilyName, FILL_FONT_STACK } from "../lib/fonts";
 
 interface Props {
   chars: CharacterRow[];
@@ -65,7 +66,7 @@ export function CharGrid({ chars, fontFamily, highlightSupported, onSelect }: Pr
               <div
                 key={c.id}
                 className={`cell${supported ? " supported" : ""}`}
-                style={{ fontFamily: `"${fontFamily}", sans-serif` }}
+                style={{ fontFamily: `${cssFontFamilyName(fontFamily)}, ${FILL_FONT_STACK}` }}
                 title={`${c.char} ${c.codepoint_hex}`}
                 onClick={() => onSelect(c)}
               >

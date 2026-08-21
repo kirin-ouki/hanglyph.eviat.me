@@ -1,4 +1,4 @@
-# CHCT Web（路線 A）
+# HanGlyph Web（路線 A）
 
 純前端、瀏覽器端 SQLite 的中文字元工具。技術：Vite + React + TypeScript + sql.js-httpvfs。
 

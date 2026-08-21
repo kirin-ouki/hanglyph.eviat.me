@@ -2,10 +2,11 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
 import "./styles.css";
-import { setHanaMinEnabled } from "./lib/fonts";
+import { installFillFontFaces } from "./lib/fonts";
 
-// 還原使用者的 HanaMin 偏好（在 React 掛載前套用，避免閃爍）
-setHanaMinEnabled(localStorage.getItem("chct.hanamin") === "1");
+// 一律注入補字字型的 @font-face：靠 unicode-range 惰性下載，未顯示該範圍的字前不耗流量。
+// 字形／字元格／匯出框等以 FILL_FONT_STACK 為後備，系統缺的 Ext B–J 罕用字即自動補上。
+installFillFontFaces();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

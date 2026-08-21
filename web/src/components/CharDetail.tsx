@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getBlocks, getReadings } from "../db/queries";
+import { getBlocks, getRadicals, getReadings } from "../db/queries";
 import type { BlockRow, CharacterRow } from "../db/types";
 import { decompose, type IdsNode } from "../lib/ids";
 import { WUXING } from "../lib/constants";
@@ -16,10 +16,12 @@ export function CharDetail({ char, onNavigate }: Props) {
   const { t, lang } = useI18n();
   const [readings, setReadings] = useState<string[]>([]);
   const [blocks, setBlocks] = useState<BlockRow[]>([]);
+  const [radicals, setRadicals] = useState<Map<number, string>>(new Map());
   const [tree, setTree] = useState<IdsNode | null>(null);
 
   useEffect(() => {
     getBlocks().then(setBlocks);
+    getRadicals().then((rs) => setRadicals(new Map(rs.map((r) => [r.id, r.comp]))));
   }, []);
 
   useEffect(() => {
@@ -37,6 +39,14 @@ export function CharDetail({ char, onNavigate }: Props) {
     return b ? (lang === "zh" ? b.name_zh : b.name_en) : "—";
   };
   const wx = char.wuxing != null ? WUXING[char.wuxing] : null;
+  const radComp = char.radical_no != null ? radicals.get(char.radical_no) : undefined;
+  const freqParts = (
+    [
+      [t("freq_lbl_all"), char.freq_all],
+      [t("freq_lbl_trad"), char.freq_trad],
+      [t("freq_lbl_simp"), char.freq_simp],
+    ] as const
+  ).filter(([, v]) => v != null);
 
   return (
     <div className="panel card">
@@ -48,15 +58,78 @@ export function CharDetail({ char, onNavigate }: Props) {
 
         <div>
           <div className="facts">
-            <Fact k={t("field_block")} v={blockName(char.block)} />
-            <Fact k={t("field_radical")} v={char.radical_no != null ? `№${char.radical_no}` : "—"} />
-            <Fact k={t("field_strokes")} v={char.stroke_total != null ? String(char.stroke_total) : "—"} />
+            <Fact
+              k={t("field_block")}
+              v={char.block != null ? <a href="#/blocks">{blockName(char.block)}</a> : "—"}
+            />
+            <Fact
+              k={t("field_radical")}
+              v={
+                char.radical_no != null ? (
+                  <span>
+                    {radComp && (
+                      <span className="clk" onClick={() => onNavigate(radComp)}>
+                        {radComp}
+                        {lang === "zh" ? "部" : ""}
+                      </span>
+                    )}{" "}
+                    <span className="sub-n">№{char.radical_no}</span>
+                  </span>
+                ) : (
+                  "—"
+                )
+              }
+            />
+            <Fact
+              k={t("field_strokes")}
+              v={
+                char.stroke_total != null ? (
+                  <span>
+                    {char.stroke_total}
+                    {char.stroke_other != null && (
+                      <span className="sub-n"> · {t("strokes_other_label")} {char.stroke_other}</span>
+                    )}
+                  </span>
+                ) : (
+                  "—"
+                )
+              }
+            />
             <Fact
               k={t("field_wuxing")}
               v={wx ? <span className="badge" style={{ background: wx.color }}>{lang === "zh" ? wx.zh : wx.en}</span> : "—"}
             />
-            <Fact k={t("field_freq")} v={char.freq_all != null ? String(char.freq_all) : "—"} />
+            {char.var_tsr && (
+              <Fact
+                k={t("field_variant")}
+                v={
+                  <span className="clk" onClick={() => onNavigate(char.var_tsr!)}>
+                    {char.var_tsr}
+                  </span>
+                }
+              />
+            )}
+            <Fact
+              k={t("field_freq")}
+              v={
+                freqParts.length ? (
+                  <span className="freq-parts">
+                    {freqParts.map(([lbl, v]) => (
+                      <span key={lbl}>
+                        <span className="lbl">{lbl}</span>
+                        {v}
+                      </span>
+                    ))}
+                  </span>
+                ) : (
+                  "—"
+                )
+              }
+            />
             <Fact k={t("field_ids")} v={char.ids ?? "—"} />
+            {char.ids_legacy && char.ids_legacy !== char.ids && (
+              <Fact k={t("field_ids_legacy")} v={char.ids_legacy} />
+            )}
           </div>
 
           {readings.length > 0 && (

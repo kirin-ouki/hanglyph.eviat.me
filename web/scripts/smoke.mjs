@@ -30,11 +30,34 @@ try {
   await page.waitForSelector(".kangxi", { timeout: 15000 });
   const kx = (await page.textContent(".kangxi")) ?? "";
   ok("康熙釋義載入", kx.length > 20, `${kx.length} 字`);
+  const kangxiFont = await page.$eval(".kangxi", (el) => getComputedStyle(el).fontFamily);
+  ok(
+    "康熙釋義使用黑體補字堆疊",
+    kangxiFont.includes("Source Han Sans") ||
+      kangxiFont.includes("Noto Sans CJK") ||
+      kangxiFont.includes("Plangothic"),
+    kangxiFont,
+  );
 
-  await page.waitForSelector(".rom-table .val", { timeout: 15000 });
+  await page.click(".theme-toggle button:nth-child(2)");
+  ok("深色模式 class", await page.evaluate(() => document.documentElement.classList.contains("dark")));
+  await page.click(".theme-toggle button:nth-child(1)");
+  ok("淺色模式 class", await page.evaluate(() => !document.documentElement.classList.contains("dark")));
+
+  await page.waitForFunction(
+    () => Array.from(document.querySelectorAll(".rom-table .val")).some((e) => {
+      const text = e.textContent?.trim();
+      return text && text !== "—";
+    }),
+    null,
+    { timeout: 15000 },
+  );
   const romVals = await page.$$eval(".rom-table .val", (els) => els.map((e) => e.textContent));
   ok("多系統拼音有值", romVals.some((v) => v && v !== "—"), romVals.slice(0, 4).join(" "));
 
+  await page.waitForFunction(() => document.querySelectorAll(".tree .t").length >= 2, null, {
+    timeout: 15000,
+  });
   const treeNodes = await page.$$eval(".tree .t", (els) => els.map((e) => e.textContent));
   ok("部件拆分樹", treeNodes.length >= 2, treeNodes.join(" "));
 
@@ -47,14 +70,37 @@ try {
 
   // ---- Phase 2：篩選 + 字元格 ----
   await page.goto(`${BASE}/#/filter`, { waitUntil: "load" });
-  await page.waitForSelector(".filter-row select", { timeout: 20000 });
-  // 選擇總筆畫 = 6
-  await page.selectOption(".filter-row:nth-child(2) select", "6");
-  await page.click("button.btn:has-text('查詢')");
+  await page.waitForSelector('[data-radical-id="85"]', { timeout: 20000 });
+  await page.click('[data-radical-id="85"]');
+  await page.waitForFunction(
+    () => document.querySelector('[data-radical-id="85"]')?.classList.contains("active"),
+    null,
+    { timeout: 10000 },
+  );
+  await page.click('[data-radical-id="85"]');
+  await page.waitForFunction(
+    () => !document.querySelector('[data-radical-id="85"]')?.classList.contains("active"),
+    null,
+    { timeout: 10000 },
+  );
+  await page.click('[data-component="氵"]');
+  await page.waitForFunction(
+    () => document.querySelector('[data-component="氵"]')?.classList.contains("active"),
+    null,
+    { timeout: 10000 },
+  );
+  await page.click('[data-component="口"]');
+  await page.waitForFunction(
+    () =>
+      document.querySelector('[data-component="氵"]')?.classList.contains("active") &&
+      document.querySelector('[data-component="口"]')?.classList.contains("active"),
+    null,
+    { timeout: 10000 },
+  );
   await page.waitForSelector(".cell", { timeout: 20000 });
   const cellCount = await page.$$eval(".cell", (els) => els.length);
   const countText = (await page.textContent(".count")) ?? "";
-  ok("篩選結果字元格", cellCount > 0, `${countText.trim()} / 可視 ${cellCount} 格`);
+  ok("篩選部件多選即時更新", cellCount > 0, `${countText.trim()} / 可視 ${cellCount} 格`);
 
   // ---- Phase 3：釋義全文檢索 ----
   await page.goto(`${BASE}/#/search`, { waitUntil: "load" });

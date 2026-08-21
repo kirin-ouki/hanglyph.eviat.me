@@ -1,24 +1,55 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
+  color-scheme: light;
   --bg: #f6f5f1;
   --panel: #ffffff;
+  --panel-soft: #fcfbf9;
+  --panel-muted: #faf8f4;
+  --field: #ffffff;
   --ink: #1c1b19;
   --muted: #6b6760;
   --line: #e3e0d8;
   --accent: #cb250d; /* 沿用原程式的硃紅 */
   --accent-soft: #fbe9e6;
+  --accent-ink: #ffffff;
   --gold: #d4af37;
+  --gold-soft: #fffbe8;
+  --glyph-bg: #ffffff;
   --radius: 10px;
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.04);
   font-family: "Segoe UI", system-ui, "Microsoft JhengHei", "PingFang TC", sans-serif;
 }
 
+:root.dark {
+  color-scheme: dark;
+  --bg: #11100e;
+  --panel: #1b1916;
+  --panel-soft: #24211d;
+  --panel-muted: #201d19;
+  --field: #151411;
+  --ink: #f3efe6;
+  --muted: #b9b0a2;
+  --line: #39342d;
+  --accent: #ff684f;
+  --accent-soft: #402018;
+  --accent-ink: #160704;
+  --gold: #e2bd4c;
+  --gold-soft: #3a3217;
+  --glyph-bg: #141310;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.28), 0 12px 28px rgba(0, 0, 0, 0.34);
+}
+
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; margin: 0; }
-body { background: var(--bg); color: var(--ink); }
+body { background: var(--bg); color: var(--ink); transition: background-color 160ms ease, color 160ms ease; }
 
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 button { font: inherit; cursor: pointer; }
+input, select, textarea { color: var(--ink); }
+input::placeholder, textarea::placeholder { color: color-mix(in srgb, var(--muted) 76%, transparent); }
 
 .app { max-width: 1100px; margin: 0 auto; padding: 0 16px 64px; }
 
@@ -27,9 +58,10 @@ button { font: inherit; cursor: pointer; }
 .brand { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
 .brand .dot { color: var(--accent); }
 .tagline { color: var(--muted); font-size: 13px; }
-.langtoggle { margin-left: auto; display: flex; gap: 4px; }
-.langtoggle button { border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 4px 10px; color: var(--muted); }
-.langtoggle button.active { color: var(--accent); border-color: var(--accent); }
+.header-actions { margin-left: auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; }
+.langtoggle, .theme-toggle { display: flex; gap: 4px; }
+.langtoggle button, .theme-toggle button { border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 4px 10px; color: var(--muted); }
+.langtoggle button.active, .theme-toggle button.active { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
 
 .nav { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
 .nav button {
@@ -46,29 +78,42 @@ button { font: inherit; cursor: pointer; }
 .searchbar { display: flex; gap: 8px; margin-bottom: 20px; }
 .searchbar input {
   flex: 1; padding: 12px 14px; font-size: 16px; border: 1px solid var(--line);
-  border-radius: var(--radius); background: var(--panel);
+  border-radius: var(--radius); background: var(--field); color: var(--ink);
 }
 .searchbar input:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
 .btn {
-  padding: 12px 18px; border: 1px solid var(--accent); background: var(--accent); color: #fff;
+  padding: 12px 18px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink);
   border-radius: var(--radius); font-weight: 600;
 }
 .btn.secondary { background: var(--panel); color: var(--accent); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Lookup featured characters */
+.lookup-featured { display: grid; gap: 16px; margin-top: 20px; }
+.lookup-featured .section-title {
+  color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+}
 
 /* Char detail */
 .detail { display: grid; grid-template-columns: 200px 1fr; gap: 20px; }
 .glyphbox { display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .glyph {
   font-size: 120px; line-height: 1; padding: 16px 8px; min-width: 160px; text-align: center;
-  border: 1px solid var(--line); border-radius: var(--radius); background: #fff;
+  border: 1px solid var(--line); border-radius: var(--radius); background: var(--glyph-bg);
+  /* 補字堆疊（全黑體）：BMP 走思源黑體/Noto，Ext B–J 走 Plangothic，皆惰性下載。*/
+  font-family: "Noto Sans CJK Fill", "Source Han Sans TC", "Noto Sans CJK TC", "PingFang TC", "Microsoft JhengHei", "Plangothic", sans-serif;
 }
 .glyph-cp { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
 
 .facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-.fact { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: #fcfbf9; }
+.fact { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--panel-soft); }
 .fact .k { color: var(--muted); font-size: 12px; }
 .fact .v { font-size: 16px; font-weight: 600; margin-top: 2px; }
+.fact .sub-n { color: var(--muted); font-weight: 400; font-size: 13px; }
+.fact .clk { cursor: pointer; color: var(--accent); border-bottom: 1px dashed transparent; }
+.fact .clk:hover { border-bottom-color: var(--accent); }
+.freq-parts { display: inline-flex; gap: 12px; }
+.freq-parts .lbl { color: var(--muted); font-weight: 400; font-size: 12px; margin-right: 3px; }
 .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; color: #fff; font-size: 13px; }
 
 .section { margin-top: 20px; }
@@ -94,20 +139,41 @@ button { font: inherit; cursor: pointer; }
 .node .op { color: var(--muted); font-size: 13px; }
 .node.entity .t { color: var(--muted); font-size: 14px; font-family: monospace; cursor: default; }
 
-/* Kangxi text */
+/* Kangxi text：優先使用思源黑體/Noto，罕用字以 Plangothic 補。*/
 .kangxi {
   font-size: 17px; line-height: 1.9; white-space: pre-wrap;
-  font-family: "Source Han Serif TC", "Noto Serif TC", "PMingLiU", serif;
+  font-family: "Noto Sans CJK Fill", "Source Han Sans TC", "Noto Sans CJK TC", "PingFang TC", "Microsoft JhengHei", "Plangothic", sans-serif;
   max-height: 360px; overflow: auto; padding-right: 6px;
 }
 
 /* Filter view */
-.filter-grid { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: start; }
+.filter-grid { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
 .filter-row { margin-bottom: 12px; }
 .filter-row label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
 .filter-row select, .filter-row input {
-  width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff;
+  width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--field); color: var(--ink);
 }
+.toggle-section { margin-bottom: 14px; }
+.toggle-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.toggle-heading label { margin: 0; }
+.toggle-heading span { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.toggle-list {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 6px;
+  max-height: 180px; overflow: auto; padding: 8px; border: 1px solid var(--line);
+  border-radius: 8px; background: var(--field);
+}
+.component-toggle-list { max-height: 230px; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); }
+.toggle-chip {
+  min-height: 38px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel);
+  color: var(--ink); display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1px; padding: 4px 3px; line-height: 1; font-family: "Noto Sans CJK Fill", "Source Han Sans TC", "Noto Sans CJK TC", "PingFang TC", "Microsoft JhengHei", "Plangothic", sans-serif;
+}
+.toggle-chip:hover { border-color: var(--accent); color: var(--accent); }
+.toggle-chip.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.glyph-mini { font-size: 20px; }
+.component-chip .glyph-mini { font-size: 18px; }
+.meta-mini { color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+.toggle-chip.active .meta-mini { color: var(--accent); }
 .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
 .toolbar .count { color: var(--muted); }
 
@@ -115,12 +181,16 @@ button { font: inherit; cursor: pointer; }
 .chargrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 6px; }
 .cell {
   aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 26px;
-  border: 1px solid var(--line); border-radius: 6px; background: #fff; cursor: pointer; user-select: none;
+  border: 1px solid var(--line); border-radius: 6px; background: var(--field); cursor: pointer; user-select: none;
 }
 .cell:hover { border-color: var(--accent); }
-.cell.supported { background: #fffbe8; border-color: var(--gold); }
+.cell.supported { background: var(--gold-soft); border-color: var(--gold); }
 
-.output { width: 100%; min-height: 120px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 22px; line-height: 1.6; }
+.output {
+  width: 100%; min-height: 120px; padding: 10px; border: 1px solid var(--line); border-radius: 8px;
+  font-size: 22px; line-height: 1.6; background: var(--field); color: var(--ink);
+  font-family: "Noto Sans CJK Fill", "Source Han Sans TC", "Noto Sans CJK TC", "PingFang TC", "Microsoft JhengHei", "Plangothic", sans-serif;
+}
 
 /* FTS hits */
 .hit { padding: 10px 12px; border-bottom: 1px solid var(--line); display: flex; gap: 12px; }
@@ -130,20 +200,50 @@ button { font: inherit; cursor: pointer; }
 
 /* Convert */
 .convert-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.convert-grid textarea { width: 100%; min-height: 220px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 16px; }
+.convert-grid textarea { width: 100%; min-height: 220px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 16px; background: var(--field); color: var(--ink); }
+
+/* CJK 區塊涵蓋 */
+.blocks-summary { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 20px; }
+.blocks-summary .stat { border: 1px solid var(--line); border-radius: 8px; padding: 10px 16px; background: var(--panel-soft); min-width: 130px; }
+.blocks-summary .stat .k { color: var(--muted); font-size: 12px; }
+.blocks-summary .stat .v { font-size: 24px; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.blocks-summary .stat .sub { color: var(--muted); font-size: 11px; margin-top: 2px; }
+.blocks-summary .stat.accent { border-color: var(--accent); background: var(--accent-soft); }
+.blocks-summary .stat.accent .v { color: var(--accent); }
+
+.blocks-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.blocks-table th, .blocks-table td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+.blocks-table th { color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: 0.3px; }
+.blocks-table th.num, .blocks-table td.num { text-align: right; }
+.blocks-table .b-name { font-weight: 600; }
+.blocks-table .b-abbr { display: block; color: var(--muted); font-size: 11.5px; margin-top: 1px; }
+.blocks-table .b-range { color: var(--muted); font-family: ui-monospace, "Cascadia Mono", monospace; font-size: 12.5px; white-space: nowrap; }
+.blocks-table tr.uncovered td { background: var(--panel-muted); }
+.blocks-table tr.uncovered .b-name { color: var(--muted); font-weight: 500; }
+.blocks-table tfoot td { font-weight: 700; border-top: 2px solid var(--line); border-bottom: none; }
+.blocks-table tfoot tr.grand td { border-top: 1px solid var(--line); }
+.blocks-table tfoot .b-abbr { font-weight: 400; }
+
+.blocks-table td.cap { color: var(--muted); }
+.blocks-note { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 14px; line-height: 1.75; }
+.blocks-note h3 { margin: 0 0 6px; font-size: 14px; color: var(--muted); font-weight: 700; letter-spacing: 0.5px; }
+.blocks-note p { margin: 0 0 8px; }
+.blocks-note .src { font-size: 12px; }
+
+.cov-cell { min-width: 150px; }
+.cov-bar { position: relative; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.cov-fill { position: absolute; top: 0; bottom: 0; left: 0; background: var(--accent); border-radius: 4px; }
+.cov-fill.full { background: var(--gold); }
+.cov-pct { font-size: 12px; color: var(--muted); margin-top: 4px; display: inline-block; }
 
 /* States */
 .center { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 60px 20px; color: var(--muted); }
+.center.compact { padding: 24px 20px; }
 .spinner { width: 28px; height: 28px; border: 3px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .muted { color: var(--muted); }
 .err { color: var(--accent); }
 
-/* HanaMin（花園明朝）開啟時，字形/字元格/康熙釋義改用全覆蓋字型 */
-.use-hanamin .glyph,
-.use-hanamin .cell { font-family: "HanaMin", "Source Han Serif TC", serif !important; }
-.use-hanamin .kangxi { font-family: "HanaMin", "Source Han Serif TC", "Noto Serif TC", serif; }
-.hanamin-toggle { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
 
 /* Responsive */
 @media (max-width: 720px) {

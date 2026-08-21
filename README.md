@@ -1,8 +1,8 @@
-# CHCT · 中文字元工具 Chinese Character Tool
+# HanGlyph · 現代漢字資料工具
 
-近九萬個 CJK 漢字的**查詢、部件（IDS）拆分、多系統羅馬拼音、康熙字典釋義全文檢索與字集匯出**工具。
+十萬級 CJK 漢字的**查詢、部件（IDS）拆分、多系統羅馬拼音、康熙字典釋義全文檢索與字集匯出**工具。
 
-本倉庫是 2017 年 WPF 桌面程式的**完整開源重生**：保留並淨化其最有價值的資產——
+HanGlyph 是 2017 年 CHCT WPF 桌面程式的**完整開源重生**：保留並淨化其最有價值的資產——
 一份欄位豐富的字元資料庫——並以「**路線 A**」重建為**純前端、瀏覽器端 SQLite 的靜態 Web 應用**
 （無後端、可部署於 GitHub Pages）。
 
@@ -70,8 +70,11 @@ React + TypeScript（Vite）
 - **參數綁定**：此版 sql.js-httpvfs 的 `?` 綁定失效，已在 [`web/src/db/client.ts`](web/src/db/client.ts) 改以安全字面量內聯（整數驗證 + 單引號跳脫；唯讀前端無伺服器注入風險）。
 - **羅馬化對照**：以 `romanization` 資料表欄位名為準，**修正**原桌面程式中系統名→欄位的對照錯位 bug。
 - **字型涵蓋**：以 Canvas 像素比對偵測（目標字型 vs 強制後備），取代 WPF 的 GlyphTypeface 掃描。
-- **罕用字補字**：選用內嵌花園明朝 HanaMin（GlyphWiki 授權），`npm run setup-fonts` 取得，
-  以 `unicode-range` 分檔，使用者開啟才下載（見 [`web/HANAMIN.md`](web/HANAMIN.md)）。
+- **字型（全黑體、一致）**：BMP（URO/Ext A/相容）用**思源黑體 / Noto Sans CJK**
+  （`src: local()` 優先用本機已裝者，否則下載自帶子集），Ext B–J 用 **Plangothic 屏黑**
+  （含第 3 平面 G/H/J）；康熙釋義（serif）的罕用字後備用花園明朝 HanaMin。皆 OFL/自由授權，
+  以 `unicode-range` 惰性載入、無需開關。取得：`npm run setup-fonts` 與 `npm run setup-noto`
+  （見 [`web/PLANGOTHIC.md`](web/PLANGOTHIC.md)、[`web/HANAMIN.md`](web/HANAMIN.md)）。
 
 ---
 

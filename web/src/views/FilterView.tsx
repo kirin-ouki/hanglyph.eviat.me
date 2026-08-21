@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   distinctStrokes,
   filterCharacters,
   getBlocks,
+  getComponents,
+  getRadicals,
   getWuxingRows,
   type FilterCriteria,
 } from "../db/queries";
-import type { BlockRow, CharacterRow, WuxingRow } from "../db/types";
+import type { BlockRow, CharacterRow, ComponentRow, WuxingRow } from "../db/types";
 import { CharGrid } from "../components/CharGrid";
 import { makeCoverageChecker } from "../lib/fontCoverage";
 import { useI18n } from "../i18n";
@@ -20,6 +22,8 @@ const DEFAULT_FONT = "sans-serif";
 export function FilterView({ onOpenChar }: Props) {
   const { t, lang } = useI18n();
   const [blocks, setBlocks] = useState<BlockRow[]>([]);
+  const [radicals, setRadicals] = useState<ComponentRow[]>([]);
+  const [components, setComponents] = useState<ComponentRow[]>([]);
   const [wuxing, setWuxing] = useState<WuxingRow[]>([]);
   const [strokes, setStrokes] = useState<number[]>([]);
 
@@ -32,65 +36,117 @@ export function FilterView({ onOpenChar }: Props) {
   const [onlySupported, setOnlySupported] = useState(false);
   const [sep, setSep] = useState("");
   const [copied, setCopied] = useState(false);
+  const runSeq = useRef(0);
 
   useEffect(() => {
     getBlocks().then(setBlocks);
+    getRadicals().then(setRadicals);
+    getComponents().then(setComponents);
     getWuxingRows().then(setWuxing);
     distinctStrokes().then(setStrokes);
   }, []);
 
-  async function run() {
+  useEffect(() => {
+    const seq = ++runSeq.current;
     setBusy(true);
-    setResults(await filterCharacters({ ...crit, limit: 5000 }));
-    setBusy(false);
-  }
+    const timer = window.setTimeout(async () => {
+      try {
+        const rows = await filterCharacters({ ...crit, limit: 5000 });
+        if (seq === runSeq.current) setResults(rows);
+      } catch (e) {
+        console.error(e);
+        if (seq === runSeq.current) setResults([]);
+      } finally {
+        if (seq === runSeq.current) setBusy(false);
+      }
+    }, 120);
+    return () => window.clearTimeout(timer);
+  }, [crit]);
 
   function clearAll() {
+    runSeq.current += 1;
     setCrit({});
     setResults(null);
+    try {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch {
+      /* ignore */
+    }
   }
 
-  function exportText(): string {
-    if (!results) return "";
+  function toggleRadical(id: number) {
+    setCrit((prev) => ({ ...prev, radical: prev.radical === id ? null : id }));
+  }
+
+  function toggleComponent(comp: string) {
+    setCrit((prev) => {
+      const selected = new Set(prev.components ?? []);
+      if (selected.has(comp)) {
+        selected.delete(comp);
+      } else {
+        selected.add(comp);
+      }
+      return { ...prev, component: null, components: Array.from(selected) };
+    });
+  }
+
+  const exportChars = useMemo(() => {
+    if (!results) return [];
     let list = results.map((r) => r.char);
     if (onlySupported) {
       const checker = makeCoverageChecker(font);
       list = list.filter((c) => checker(c));
     }
-    return list.join(sep);
-  }
+    return list;
+  }, [font, onlySupported, results]);
+
+  const exportText = useMemo(() => exportChars.join(sep), [exportChars, sep]);
 
   async function copyOut() {
-    await navigator.clipboard.writeText(exportText());
+    await navigator.clipboard.writeText(exportText);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   }
 
   function downloadOut() {
-    const blob = new Blob([exportText()], { type: "text/plain;charset=utf-8" });
+    const blob = new Blob([exportText], { type: "text/plain;charset=utf-8" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "chct-charset.txt";
+    a.download = "hanglyph-charset.txt";
     a.click();
     URL.revokeObjectURL(a.href);
   }
 
-  const num = (v: string): number | null => (v === "" ? null : Number(v));
+  const num = (v: string): number | null => {
+    if (v === "") return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  };
+  const selectedComponents = crit.components ?? [];
 
   return (
     <div className="filter-grid">
       <div className="panel card">
-        <div className="filter-row">
-          <label>{t("filter_radical")}</label>
-          <input
-            type="number"
-            min={1}
-            max={214}
-            value={crit.radical ?? ""}
-            onChange={(e) => setCrit({ ...crit, radical: num(e.target.value) })}
-            placeholder="1–214"
-          />
-        </div>
+        <ToggleGroup
+          title={t("filter_radical")}
+          count={radicals.length}
+          className="radical-toggle-list"
+        >
+          {radicals.map((r) => (
+            <button
+              key={r.id}
+              type="button"
+              data-radical-id={r.id}
+              className={`toggle-chip radical-chip${crit.radical === r.id ? " active" : ""}`}
+              title={`№${r.id}${r.stroke != null ? ` · ${r.stroke} strokes` : ""}`}
+              onClick={() => toggleRadical(r.id)}
+            >
+              <span className="glyph-mini">{r.comp}</span>
+              <span className="meta-mini">{r.id}</span>
+            </button>
+          ))}
+        </ToggleGroup>
+
         <div className="filter-row">
           <label>{t("filter_strokes")}</label>
           <select value={crit.strokes ?? ""} onChange={(e) => setCrit({ ...crit, strokes: num(e.target.value) })}>
@@ -119,14 +175,27 @@ export function FilterView({ onOpenChar }: Props) {
           </select>
         </div>
         <div className="filter-row">
-          <label>{t("filter_component")}</label>
-          <input
-            value={crit.component ?? ""}
-            maxLength={8}
-            onChange={(e) => setCrit({ ...crit, component: e.target.value || null })}
-            placeholder="如 心、氵、&CDP-...;"
-          />
+          <ToggleGroup
+            title={t("filter_component")}
+            count={components.length}
+            className="component-toggle-list"
+          >
+            {components.map((c) => (
+              <button
+                key={`${c.id}-${c.comp}`}
+                type="button"
+                data-component={c.comp}
+                className={`toggle-chip component-chip${(crit.components ?? []).includes(c.comp) ? " active" : ""}`}
+                title={`${c.comp}${c.stroke != null ? ` · ${c.stroke} strokes` : ""}`}
+                onClick={() => toggleComponent(c.comp)}
+              >
+                <span className="glyph-mini">{c.comp}</span>
+                {c.stroke != null && <span className="meta-mini">{c.stroke}</span>}
+              </button>
+            ))}
+          </ToggleGroup>
         </div>
+
         <div className="filter-row">
           <label>{t("filter_freq")}</label>
           <input
@@ -137,7 +206,6 @@ export function FilterView({ onOpenChar }: Props) {
           />
         </div>
         <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-          <button className="btn" onClick={run} disabled={busy}>{t("filter_run")}</button>
           <button className="btn secondary" onClick={clearAll}>{t("filter_clear")}</button>
         </div>
       </div>
@@ -150,6 +218,7 @@ export function FilterView({ onOpenChar }: Props) {
               <span className="count">
                 {results.length.toLocaleString()} {t("result_count")}
                 {results.length >= 5000 && " (max 5000)"}
+                {selectedComponents.length > 1 && ` · ${selectedComponents.join(" + ")}`}
               </span>
               <label style={{ marginLeft: "auto" }}>
                 {t("font_family")}:{" "}
@@ -185,13 +254,33 @@ export function FilterView({ onOpenChar }: Props) {
               <button className="btn secondary" onClick={copyOut}>{copied ? t("copied") : t("copy")}</button>
               <button className="btn secondary" onClick={downloadOut}>{t("download")}</button>
             </div>
-            <textarea className="output" readOnly value={exportText()} />
+            <textarea className="output" readOnly value={exportText} />
           </>
         )}
-        {!results && !busy && (
-          <div className="center muted">{lang === "zh" ? "設定條件後按「查詢」。" : "Set criteria and press Run."}</div>
-        )}
+        {!results && !busy && <div className="center muted">{t("filter_auto_waiting")}</div>}
       </div>
+    </div>
+  );
+}
+
+function ToggleGroup({
+  title,
+  count,
+  className,
+  children,
+}: {
+  title: string;
+  count: number;
+  className: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="filter-row toggle-section">
+      <div className="toggle-heading">
+        <label>{title}</label>
+        <span>{count.toLocaleString()}</span>
+      </div>
+      <div className={`toggle-list ${className}`}>{children}</div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { fullTextSearch, type FtsHit } from "../db/queries";
 import { useI18n } from "../i18n";
 
@@ -19,12 +19,21 @@ export function SearchView({ onOpenChar }: Props) {
   const [term, setTerm] = useState("");
   const [hits, setHits] = useState<FtsHit[] | null>(null);
   const [busy, setBusy] = useState(false);
+  const requestSeq = useRef(0);
 
   async function run() {
     if (!term.trim()) return;
+    const seq = ++requestSeq.current;
     setBusy(true);
-    setHits(await fullTextSearch(term));
-    setBusy(false);
+    try {
+      const rows = await fullTextSearch(term);
+      if (seq === requestSeq.current) setHits(rows);
+    } catch (e) {
+      console.error(e);
+      if (seq === requestSeq.current) setHits([]);
+    } finally {
+      if (seq === requestSeq.current) setBusy(false);
+    }
   }
 
   return (

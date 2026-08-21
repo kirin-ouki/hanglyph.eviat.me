@@ -224,6 +224,8 @@ def main():
         for idx, ph in enumerate((ph1, ph2, ph3, ph4, ph5, ph6, ph7, ph8, ph9, ph10), start=1):
             pv = clean_str(ph)
             if pv:
+                # 原始資料偶見漢字「一」(U+4E00) 誤植為注音「ㄧ」(U+3127)，正規化之。
+                pv = pv.replace("一", "ㄧ")
                 reading_rows.append((cid, idx, pv)); n_reading += 1
         for comp in parse_components(ids, ch):
             comp_rows.append((cid, comp)); n_comp += 1

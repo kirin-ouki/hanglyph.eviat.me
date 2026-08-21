@@ -1,4 +1,4 @@
-# CHCT 開放資料字典（DATA.md）
+# HanGlyph 開放資料字典（DATA.md）
 
 > 由 `data/migrate.py` 於 2026-06-19 13:29:19 自原始 `Char.mdb` 自動產生。
 > schema 版本 1.0。本檔同時是資料來源與授權的說明文件。
@@ -19,6 +19,18 @@
 | char_components（IDS 反查） | 166,736 |
 | romanization | 411 |
 | components_standard / radical / custom | 500 / 214 / 6 |
+
+> ℹ **擴展區補充收錄（手動附註，非 migrate.py 產生）**：上表數字為 2017 基底字庫。
+> 之後由 [`data/ingest_ext.py`](data/ingest_ext.py) 自 **Unicode 17.0 Unihan** 補入
+> 擴展 G/H/I/J 共 **14,051 字**（characters 增至 **103,017**），新增 blocks id 7–10。
+> 補入欄位：`radical_no`（Unihan `kRSUnicode`）、`stroke_total`（`kTotalStrokes`）——皆全覆蓋；
+> `ids` 部件拆分＋`char_components` 反查（CHISE `chise/ids`，近全覆蓋）；
+> `readings`（`kMandarin` 拼音經本專案 romanization 表反查為注音，部分覆蓋）。
+> 其餘欄位（`wuxing`/頻率/康熙）留 NULL。
+> **來源與授權**：Unihan 屬 [Unicode License](https://www.unicode.org/license.txt)（寬鬆、需標示）；
+> CHISE `chise/ids` 倉庫標示為 **GPL**——其 IDS 拆分屬事實性資料，GPL 是否及於衍生資料庫
+> 須於散布前釐清，與既有「讀音／羅馬化／頻率來源待確認」一併處理。
+> 詳見 [`data/CATCHUP.md`](data/CATCHUP.md)。
 
 ## `characters` 欄位（含原欄位對照）
 | 欄位 | 來源 | 說明 | 填充率 |

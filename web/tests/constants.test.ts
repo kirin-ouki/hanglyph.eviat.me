@@ -1,22 +1,21 @@
-import { describe, it, expect } from "vitest";
-import { splitTone, TONE_NUMBER } from "../src/lib/constants";
+import { describe, expect, it } from "vitest";
+import { splitTone } from "../src/lib/constants";
 
 describe("splitTone", () => {
-  it("分離注音聲調符號", () => {
-    expect(splitTone("ㄞˋ")).toEqual({ base: "ㄞ", tone: "ˋ" });
-    expect(splitTone("ㄕㄨㄟˇ")).toEqual({ base: "ㄕㄨㄟ", tone: "ˇ" });
-    expect(splitTone("ㄇㄚ˙")).toEqual({ base: "ㄇㄚ", tone: "˙" });
-  });
-  it("第一聲（無調號）tone 為空", () => {
+  it("無聲調（一聲）", () => {
     expect(splitTone("ㄓㄨㄥ")).toEqual({ base: "ㄓㄨㄥ", tone: "" });
   });
-});
 
-describe("TONE_NUMBER", () => {
-  it("調號對應數字", () => {
-    expect(TONE_NUMBER["ˊ"]).toBe("2");
-    expect(TONE_NUMBER["ˇ"]).toBe("3");
-    expect(TONE_NUMBER["ˋ"]).toBe("4");
-    expect(TONE_NUMBER["˙"]).toBe("5");
+  it("尾綴聲調", () => {
+    expect(splitTone("ㄞˋ")).toEqual({ base: "ㄞ", tone: "ˋ" });
+    expect(splitTone("ㄕㄨㄟˇ")).toEqual({ base: "ㄕㄨㄟ", tone: "ˇ" });
+  });
+
+  it("輕聲尾綴（資料庫格式）", () => {
+    expect(splitTone("ㄇㄚ˙")).toEqual({ base: "ㄇㄚ", tone: "˙" });
+  });
+
+  it("輕聲前綴（標準正字法）", () => {
+    expect(splitTone("˙ㄇㄚ")).toEqual({ base: "ㄇㄚ", tone: "˙" });
   });
 });

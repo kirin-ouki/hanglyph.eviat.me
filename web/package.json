@@ -1,12 +1,13 @@
 {
-  "name": "chct-web",
+  "name": "hanglyph-web",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "CHCT — 中文字元工具 Web 版（路線 A：瀏覽器端 SQLite 靜態站）",
+  "description": "HanGlyph — 現代漢字資料工具（瀏覽器端 SQLite 靜態站）",
   "scripts": {
     "setup-data": "node scripts/setup-data.mjs",
     "setup-fonts": "node scripts/setup-fonts.mjs",
+    "setup-noto": "python scripts/setup-noto.py",
     "predev": "node scripts/setup-data.mjs",
     "dev": "vite",
     "prebuild": "node scripts/setup-data.mjs",
@@ -24,11 +25,13 @@
     "sql.js-httpvfs": "^0.8.12"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.3.1",
     "@types/node": "^25.9.3",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
     "playwright": "^1.61.0",
+    "tailwindcss": "^4.3.1",
     "typescript": "^5.6.3",
     "vite": "^5.4.11",
     "vitest": "^4.1.9"

@@ -7,10 +7,12 @@ CHCT/Char.mdb
 # ── Phase 0 產物（可由 `python data/migrate.py` 重現；大型檔以 GitHub Releases 發佈）──
 data/dist/
 
-# ── 舊 Visual Studio / WPF 建置產物與暫存 ──
+# ── 擴展區補充資料源（Unihan / IDS，由 data/ingest_ext.py 下載快取）──
+data/sources/
+
+# ── 舊 Visual Studio / WPF 遺留（原始碼與建置產物已於改名 HanGlyph 時刪除，
+#    規則保留作為保險，避免舊工具再次產生檔案時混入）──
 .vs/
-CHCT/bin/
-CHCT/obj/
 *.user
 *.vspx
 *.psess

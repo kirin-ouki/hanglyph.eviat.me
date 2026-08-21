@@ -49,28 +49,31 @@ export interface IdsNode {
   children: IdsNode[];
 }
 
-/** 遞迴拆分一個字，回傳樹狀結構。以 visited 防環、maxDepth 防爆。 */
+/** 遞迴拆分一個字，回傳樹狀結構。以「祖先鏈」防環（同部件可在不同分支各自展開）、maxDepth 防爆。 */
 export async function decompose(char: string, maxDepth = 8): Promise<IdsNode> {
-  const visited = new Set<string>();
+  const idsCache = new Map<string, string | null>();
 
-  async function build(token: string, depth: number): Promise<IdsNode> {
+  async function build(token: string, depth: number, ancestors: Set<string>): Promise<IdsNode> {
     const entity = isEntity(token);
     const node: IdsNode = { token, ids: null, isEntity: entity, children: [] };
-    if (entity || depth >= maxDepth || visited.has(token)) return node;
-    visited.add(token);
+    if (entity || depth >= maxDepth || ancestors.has(token)) return node;
 
-    const rows = await query<{ ids: string | null }>(
-      "SELECT ids FROM characters WHERE char = ? LIMIT 1",
-      [token],
-    );
-    const ids = rows[0]?.ids ?? null;
+    let ids = idsCache.get(token);
+    if (ids === undefined) {
+      const rows = await query<{ ids: string | null }>(
+        "SELECT ids FROM characters WHERE char = ? LIMIT 1",
+        [token],
+      );
+      ids = rows[0]?.ids ?? null;
+      idsCache.set(token, ids);
+    }
     node.ids = ids;
-    const comps = parseComponents(ids, token);
-    for (const c of comps) {
-      node.children.push(await build(c, depth + 1));
+    const nextAncestors = new Set(ancestors).add(token);
+    for (const c of parseComponents(ids, token)) {
+      node.children.push(await build(c, depth + 1, nextAncestors));
     }
     return node;
   }
 
-  return build(char, 0);
+  return build(char, 0, new Set());
 }
