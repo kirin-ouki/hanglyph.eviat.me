@@ -112,26 +112,29 @@ React + TypeScript（Vite）
 
 ## 🚢 發佈資料與部署
 
-`char.sqlite`（約 43MB）與字型不進版控。發佈與部署流程：
+`char.sqlite`（約 44 MiB）與字型不進版控。站台部署於 <https://hanglyph.eviat.me>
+（GitHub Pages + 自訂網域；`web/public/CNAME` 與 deploy.yml 的 `VITE_BASE=/` 兩者要一致）。
 
 ```bash
-# 1) 建立 GitHub 倉庫並加遠端（你決定可見性）
-git remote add origin <你的 repo URL> && git push -u origin main
+# 1) 產生資料與字型子集
+python data/migrate.py && python data/ingest_ext.py   # -> data/dist/char.sqlite
+cd web && npm run setup-noto                          # -> public/fonts/NotoSansCJKtc-cjkbmp.woff2
 
-# 2) 把資料集發佈為 Release 草稿 data-v1（需先安裝並登入 gh CLI）
-node scripts/publish-data-release.mjs            # 預設建立「草稿」，到 GitHub 再按 Publish
-#   GitHub Pages 部署（.github/workflows/deploy.yml）會自此 Release 下載 char.sqlite
-
-# 3) 啟用 GitHub Pages（Settings → Pages → Source: GitHub Actions）
+# 2) 發佈為 Release data-v1（需先 gh auth login）
+npm run publish-data                 # 直接公開發佈；加 -- --draft 則只建草稿
 ```
 
-> ⚠ **資料發佈是刻意保留給你親自執行的動作**：散布前請先釐清注音／羅馬化／頻率資料來源
-> （見 [`DATA.md`](DATA.md)），並確認倉庫可見性。`scripts/publish-data-release.mjs`
-> 預設只建立**草稿**，不會自動公開。
+部署工作流程 [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) 會自 `data-v1`
+下載 `char.sqlite` 與字型子集。兩者缺少時 build 仍會成功，但站台會分別顯示「資料缺失」
+與回退到系統字型——**是靜默降級，不是錯誤**，發佈後請實際開站確認。
+
+> ⚠ **資料發佈是刻意保留給作者親自執行的動作**：散布前請先釐清注音／羅馬化／頻率資料來源
+> （見 [`DATA.md`](DATA.md)）。`npm run publish-data` **會直接公開發佈**——之所以不預設草稿，
+> 是因為 CI 的 `GITHUB_TOKEN` 讀不到草稿 release，會讓部署靜默建出沒有資料的站台。
 
 ## ✅ 進度（Phase 0–4 全數完成）
 
-- **Phase 0** 資料解放：88,966 字遷入乾淨 SQLite，正規化讀音/部件反查、FTS5、CSV/JSON 開放資料、`DATA.md`。
+- **Phase 0** 資料解放：103,017 字遷入乾淨 SQLite，正規化讀音/部件反查、FTS5、CSV/JSON 開放資料、`DATA.md`。
 - **Phase 1** 唯讀單字查詢頁。
 - **Phase 2** 複合篩選 + 虛擬化字元格 + 字型支援高亮 + 字集匯出。
 - **Phase 3** 康熙釋義全文檢索 + 拼音轉換 + i18n + 響應式版面。

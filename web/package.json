@@ -8,6 +8,7 @@
     "setup-data": "node scripts/setup-data.mjs",
     "setup-fonts": "node scripts/setup-fonts.mjs",
     "setup-noto": "python scripts/setup-noto.py",
+    "publish-data": "node ../scripts/publish-data-release.mjs",
     "predev": "node scripts/setup-data.mjs",
     "dev": "vite",
     "prebuild": "node scripts/setup-data.mjs",
